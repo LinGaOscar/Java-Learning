@@ -1,4 +1,4 @@
-package com.oscar;
+package com.oscar.hello;
 
 public class HelloWorld {
 
