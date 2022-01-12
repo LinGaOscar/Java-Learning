@@ -18,8 +18,8 @@ public class VariableReference {
 		String str11 = "HelloWorld";
 		String str12 = new String("HelloWorld");
 		String str13 = "HelloWorld";
-		System.out.println(str11 == str12); // different Reference in spring pool
-		System.out.println(str11 == str13); // same Reference in spring pool
+		System.out.println(str11 == str12); // different Reference in spring pool memory
+		System.out.println(str11 == str13); // same Reference in spring pool memory
 		System.out.println(str11.equals(str12)); // same value
 
 	}
