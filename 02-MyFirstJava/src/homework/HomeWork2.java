@@ -29,13 +29,14 @@ public class HomeWork2 {
 
 
 
-		
+		//HW another half
 		// for (int i = 1; i <= line; i++) {
 		// for (int n = 1; n <= line - i; n++) {
 		// System.out.print("*");
 		// }
 		// }
-
+		
+		//pyramid
 		// for (int i = 1; i <= line; i++) {
 		// for (int n = 1; n <= line - i; n++) {
 		// System.out.print(" ");

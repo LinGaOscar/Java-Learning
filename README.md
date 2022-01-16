@@ -41,6 +41,9 @@
             
         DataArrary
             一維陣列/一維陣列
+
+        EscapeSequence 跳脫字元
+            print tab 換行
             
     variable
     
@@ -49,3 +52,29 @@
             
         VariableLocation 變數位置
             程式區塊的為主，可以相依上層不能直接讀取隔壁
+            void function
+
+        VariableOperator 運算子
+            算術運算子 / 相等性及關係運算子 / 條件運算子
+
+    logic
+
+        LogicIf
+
+        LogicSwitch
+
+        LogicFor
+
+        LogicWhile
+
+        BreakAndContinue
+
+     homework
+
+        HomeWork1   
+            for+if  1-100 / for+for+if 9*9
+
+        HomeWork2
+            for+for 半邊星星 / for+for 半邊星星2 / for+for+for金字塔
+
+        

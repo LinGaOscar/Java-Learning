@@ -6,7 +6,7 @@ public class VariableLocation {
 		int b =567;
 		checker();
 	}
-	
+	//create function
 	static void checker() {
 		System.out.println(a);
 		//System.out.println(b);
