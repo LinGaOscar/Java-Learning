@@ -3,7 +3,6 @@ package com.oscar.logic;
 public class LogicSwitch {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		int input = 2;
 		switch (input) {
 		case 1:
