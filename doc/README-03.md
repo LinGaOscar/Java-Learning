@@ -20,3 +20,8 @@
 
 
 * Polymorphism 多型
+
+        有繼承才有多型，一個物件的參考可以宣告為多個型別，稱為多型。
+        @overwrite function
+        ((Dog) animal1).bark(); 強制轉型
+        Dog and Wolf are animals , animal can be a kind of Dog or Wolf.
