@@ -9,6 +9,6 @@ public class VariableLocation {
 	//create function
 	static void checker() {
 		System.out.println(a);
-		//System.out.println(b);
+		// System.out.println(b);
 	}
 }
