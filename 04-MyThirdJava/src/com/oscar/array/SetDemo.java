@@ -7,7 +7,8 @@ import java.util.Set;
 public class SetDemo {
 
 	public static void main(String[] args) {
-		Set set = new HashSet(); // raw type can be any type but easy easy to get error when u try to process
+		Set set = new HashSet<>(); // raw type can be any type but easy easy to get error when u try to process
+//		Set<String> set = new HashSet<String>()
 		set.add(12);
 		set.add(6.8);
 		set.add("Hello");
