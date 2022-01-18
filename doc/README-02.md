@@ -1,6 +1,5 @@
 # 02-MyFirstJava
 
-
 * hello
        
         create new java project
