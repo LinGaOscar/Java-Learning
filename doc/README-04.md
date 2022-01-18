@@ -15,8 +15,17 @@
 
 * array 陣列
 
-        List
+        collection 介面
+        動態陣列 
+        add() / clear() / isEmpty() / size() / remove()
 
-        Set
+        List 串列
+        有特定順序 有index 可以重複
 
-        Map
+        Set 集
+        無特定順序 無index 不可重複
+
+        Map 集合介面 映射表
+        無繼承collection
+        無特定順序 有index <key,value>
+        key 不可重複 value可重複
