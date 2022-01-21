@@ -29,3 +29,16 @@
         無繼承collection
         無特定順序 有index <key,value>
         key 不可重複 value可重複
+
+* Lambda
+        
+        GetSimple 
+        利用 Runnable Interface 實作
+        Runnable runnable = () ->System.out.println("run");
+
+        LambdaArray
+        list.forEach(i -> System.out.println(i));
+        List<>泛型
+
+        LambdaStream
+        將Array 轉成 stream 利用.map 轉至內容在使用collect 轉回list
