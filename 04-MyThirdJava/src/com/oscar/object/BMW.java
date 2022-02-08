@@ -2,14 +2,23 @@ package com.oscar.object;
 
 public class BMW extends Car {
 
-	public String autoBreak() {
-		this.setSpeed(0);
-		return this.getName() + " is stopped" + this.getSpeed();
+	public void setModel(String model) {
+		this.setName("BMW " + model);
 	}
 
-	@Override
-	public String toString() {
-		return "BMW :" + this.getName() + " speed :" + this.getSpeed() + "\n I have autoBreak function.";
+	public void turboX() {
+		this.speedUp();
+		this.speedUp();
+	}
+
+	public void turboX(int time) {
+		for (int i = 0; i < time; i++) {
+			this.speedUp();
+		}
+	}
+
+	public void showDetial() {
+		System.out.println(this.toString());
 	}
 
 }

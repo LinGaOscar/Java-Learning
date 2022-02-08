@@ -9,6 +9,7 @@ import java.util.Set;
 public class LambdaArray {
 
 	public static void main(String[] args) {
+		//Generics
 		List list = new ArrayList();
 		list.add("Hello");
 		list.add("World");

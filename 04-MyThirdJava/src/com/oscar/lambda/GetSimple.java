@@ -11,7 +11,7 @@ public class GetSimple {
 		// Runnable is Interface
 		Runnable runnable = new Runnable() {
 			public void run() {
-				System.out.print("run");
+				System.out.println("run");
 			}
 		};
 
@@ -20,8 +20,8 @@ public class GetSimple {
 
 		runnable.run();
 
-//		MathFactory ma1 = (x, y) -> x + y;
-//		System.out.println(ma1.bump(1, 9));
+		MathFactory ma1 = (x, y) -> x + y;
+		System.out.println(ma1.bump(1, 9));
 
 	}
 

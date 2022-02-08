@@ -6,13 +6,11 @@ public class MustError {
 		String[] greetings = { "Hello", "Hi! ", "greeting" };
 
 		try {
-			
 			for (int i = 0; i <= greetings.length; i++) {
 				System.out.println(greetings[i]);
 			}
-
-		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("ArrayIndexOutOfBoundsException happened!");
+//		} catch (ArrayIndexOutOfBoundsException e) {
+//			System.out.println("ArrayIndexOutOfBoundsException happened!");
 		} catch (Exception e) {
 			System.out.println("e" + e);
 		} finally {

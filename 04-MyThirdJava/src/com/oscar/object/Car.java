@@ -19,14 +19,20 @@ public class Car {
 	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
-	
-	public void start() {
-		this.speed = 50;
+
+	public void speedUp() {
+
+		if (speed > 0) {
+			this.speed = speed * 1.4;
+			System.out.println("Engine boost!");
+		} else {
+			this.speed = 10;
+			System.out.println("Engine Start!");
+		}
 	}
 
-	@Override
 	public String toString() {
 		return "Car [name=" + name + ", speed=" + speed + "]";
 	}
-	
+
 }
