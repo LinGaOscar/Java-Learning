@@ -49,4 +49,3 @@
 
         HW2 將名子轉大寫並加入hello 字串分行顯示
         利用lamda 將 list 轉到 set 避免重複
-
