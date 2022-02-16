@@ -25,3 +25,7 @@
         @overwrite function
         ((Dog) animal1).bark(); 強制轉型
         Dog and Wolf are animals , animal can be a kind of Dog or Wolf.
+
+* Homework
+
+        利用大考小考概念作出封裝繼承多型的練習
