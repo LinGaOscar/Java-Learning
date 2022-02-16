@@ -42,3 +42,11 @@
 
         LambdaStream
         將Array 轉成 stream 利用.map 轉至內容在使用collect 轉回list
+
+* Homework
+        
+        HW1 猜大小遊戲利用try and catch 避免輸入是String 時發生錯誤
+
+        HW2 將名子轉大寫並加入hello 字串分行顯示
+        利用lamda 將 list 轉到 set 避免重複
+
