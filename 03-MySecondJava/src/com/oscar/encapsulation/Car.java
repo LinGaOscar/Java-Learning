@@ -4,7 +4,7 @@ public class Car {
 
 	private String name;
 	private double speed;
-	//Ctrl + Shift + s
+	//alt + Shift + s
 	@Override
 	public String toString() {
 		return "Car [name=" + name + ", speed=" + speed + "]";

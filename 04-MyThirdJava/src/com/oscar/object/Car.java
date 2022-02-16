@@ -21,9 +21,8 @@ public class Car {
 	}
 
 	public void speedUp() {
-
 		if (speed > 0) {
-			this.speed = speed * 1.4;
+			this.speed = speed * 1.1;
 			System.out.println("Engine boost!");
 		} else {
 			this.speed = 10;

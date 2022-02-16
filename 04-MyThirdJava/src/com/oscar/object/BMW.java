@@ -17,6 +17,17 @@ public class BMW extends Car {
 		}
 	}
 
+	@Override
+	public void speedUp() {
+		if (this.getSpeed() > 0) {
+			this.setSpeed(getSpeed()*1.5);
+			System.out.println("BMW function boost!");
+		} else {
+			this.setSpeed(20);
+			System.out.println("BMW Start!");
+		}
+	}
+
 	public void showDetial() {
 		System.out.println(this.toString());
 	}
