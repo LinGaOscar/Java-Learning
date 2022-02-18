@@ -7,15 +7,32 @@ public interface Usb {
 	public void unplug();
 }
 
-class Port implements Usb {
+class Mouse implements Usb {
 
 	@Override
 	public void plugin() {
-		System.out.println("USB ON");
+		System.out.println("Mouse ON");
 	}
 
 	@Override
 	public void unplug() {
-		System.out.println("USB OFF");
+		System.out.println("Mouse OFF");
 	}
+
+}
+
+class Keyboard implements Usb {
+
+	@Override
+	public void plugin() {
+		System.out.println("Keyboard ON");
+
+	}
+
+	@Override
+	public void unplug() {
+		System.out.println("Keyboard OFF");
+
+	}
+
 }
