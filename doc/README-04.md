@@ -1,5 +1,18 @@
 # 03-MyThirdJava
 
+* AbstractCar 抽象類別
+
+        抽象可以想像成一種概念，並不存在於世界上
+
+        abstract 是一個Java的關鍵字，是一個修飾子，可以用來修飾的有： 1. 類別 2. 方法
+
+        把Animal視為一種『概念』，他是抽象的，不存在於世界上的。 而Dog、Bird、Fish都具備這個概念的特質，所以繼承Animal。
+
+* Interface 介面
+        
+        介面，描述不同類別的共通行為
+        創建共通行為 方法來實作class
+
 * object 物件
 
         Java 中的所有物件即是Object
