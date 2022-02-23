@@ -3,10 +3,9 @@ package com.oscar.abstra;
 public class GoCar {
 
 	public static void main(String[] args) {
-		ANewCar aCar = new ANewCar();
+		ABrandCar aCar = new ABrandCar();
 		aCar.start();
-		BNewCar bCar = new BNewCar();
+		BBrandCar bCar = new BBrandCar();
 		bCar.start();
 	}
-
 }
