@@ -12,7 +12,7 @@ public class PrimitiveType {
 		System.out.println("numShort add numLong : " + numShort + numLong);
 		System.out.println("numByte add numInt : " + numByte + numInt);
 
-		// float, double
+		// float, double 
 		float f = 3.12546f; // -3.40292347E+38 to +3.40292347E+38
 		double dou = 12.242; // -1.7976931348623157E+308 to +1.7976931348623157E+308
 		System.out.println(f);
@@ -27,11 +27,6 @@ public class PrimitiveType {
 		char var2 = '\u6145';
 		System.out.println("var1 : " + var1);
 		System.out.println("var2 : " + var2);
-
-		// String class type
-		char data[] = { 'a', 'b', 'c' };
-		String str = new String(data);
-		System.out.println(str);
 	}
 
 }
