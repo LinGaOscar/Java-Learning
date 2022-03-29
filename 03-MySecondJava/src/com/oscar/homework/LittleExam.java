@@ -13,7 +13,8 @@ public class LittleExam extends Exam {
 
 	@Override
 	public String toString() {
-		return "LittleExam 學生: " + Student + "\n 是否及格: " + examCheck();
+		return "LittleExam 學生: " + Student + "\n 題目是: " + getQuestion() + "\n 回答是: " + getResponse() + "\n 是否正確: "
+				+ examCheck();
 	}
 
 }

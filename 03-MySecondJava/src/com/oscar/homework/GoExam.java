@@ -10,8 +10,8 @@ public class GoExam {
 		little.examCheck();
 		System.out.println(little.toString());
 		
-		little.setResponse("5");
-		little.examCheck();
-		System.out.println(little.toString());
+//		little.setResponse("5");
+//		little.examCheck();
+//		System.out.println(little.toString());
 	}
 }

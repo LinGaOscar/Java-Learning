@@ -25,4 +25,16 @@ public class Exam {
 			return false;
 		}
 	}
+
+	public String getQuestion() {
+		return question;
+	}
+
+	public String getResponse() {
+		return response;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
 }
