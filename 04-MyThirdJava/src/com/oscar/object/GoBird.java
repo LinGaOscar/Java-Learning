@@ -3,18 +3,21 @@ package com.oscar.object;
 public class GoBird {
 
 	public static void main(String[] args) {
-		Chicken cc = new Chicken();
-		cc.setColor("red");
-		cc.eat();
-		cc.move();
-		cc.cockCrow();
-		cc.showDetial();
-		
-		System.out.println("");
-		
-		Eagle ee = new Eagle("yellow");
-		ee.move();
 
+		Bird bird = new Bird();
+		bird.eat();
+		bird.move();
+		bird.fly();
+		bird.showDetial();
+
+		System.out.println();
+
+		Chicken checken = new Chicken();
+		checken.eat();
+		checken.move();
+		checken.fly();
+		checken.cockCrow();
+		checken.showDetial();
 	}
 
 }

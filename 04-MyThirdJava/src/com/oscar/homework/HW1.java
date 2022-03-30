@@ -11,19 +11,23 @@ public class HW1 {
 
 		// use try n catch to prevent crush that input isn't number
 		while (true) {
-			int input = s.nextInt();
-			if (input == answer) {
-				System.out.println("Well Done !");
-				System.out.println("Good Game !");
-				break;
-			}
-			if (input > answer) {
-				System.out.println("too high");
-			} else {
-				System.out.println("too low");
+			try {
+				int input = s.nextInt();
+				if (input == answer) {
+					System.out.println("Well Done !");
+					System.out.println("Good Game !");
+					break;
+				}
+				if (input > answer) {
+					System.out.println("too high");
+				} else {
+					System.out.println("too low");
+				}
+			} catch (Exception e) {
+				System.out.println("too");
+				s.next();
 			}
 		}
 		s.close();
 	}
-
 }

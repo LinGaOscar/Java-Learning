@@ -19,7 +19,7 @@ public class Bird extends AbstraBird implements InterfaceAnimal {
 	}
 
 	public void showDetial() {
-		System.out.println("Bird color: " + this.getColor());
+		System.out.println(this.intro);
 	}
 
 }
