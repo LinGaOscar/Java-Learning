@@ -117,7 +117,6 @@
 		</div>
 	</section>
 </section>
-<!-- 服務據點-元件結束 -->
 
 <script language="javascript">
 $('body').loadingModal({'animation': 'fadingCircle'});
@@ -139,77 +138,81 @@ $('body').loadingModal({'animation': 'fadingCircle'});
 		},
 		computed : {
 			//店點清單
-			serverLocations : function(){
-				let temp=[];
-				if(!!this.serverLocationTemp){
-					this.serverLocationTemp.forEach(r=>{
-						//服務鈴
-						switch (this.barrier) {
-						case this.barrierOptions[1]:
-							if(r.Service_Bell=="Y"){
-								temp.push(r);    
-							}
-							break;
-						//服務鈴+活動斜坡
-						case this.barrierOptions[2]:
-							if(r.Service_Bell=="Y" && r.Activity_Ramp=="Y"){
-								temp.push(r);    
-							}
-						break;
-						//服務鈴+既有斜坡
-						case this.barrierOptions[3]:
-							if(r.Service_Bell=="Y" && r.Existing_Slope=="Y"){
-								temp.push(r);    
-							}
-							break;
-						//服務鈴+平坦入口
-						case this.barrierOptions[4]:
-							if(r.Service_Bell=="Y" && r.Flat_Entrance=="Y"){
-								temp.push(r);    
-							}
-							break;
-						//平坦入口	
-						case this.barrierOptions[5]:
-							if(r.Flat_Entrance=="Y"){
-								temp.push(r);    
-							}
-							break;
-						default:
-							temp.push(r);
-							break;
-						}
-					});
+			serverLocations() {
+				if(!this.serverLocationTemp){
+					return;
 				}
-				return temp;
-			},		
+				
+				return this.serverLocationTemp?.filter(location => {
+					//服務鈴
+					switch (this.barrier) {
+					case this.barrierOptions[1]:
+						if(location.Service_Bell=="Y"){
+							return location;
+						}
+						break;
+					//服務鈴+活動斜坡
+					case this.barrierOptions[2]:
+						if(location.Service_Bell=="Y" && location.Activity_Ramp=="Y"){
+							return location;
+						}
+					break;
+					//服務鈴+既有斜坡
+					case this.barrierOptions[3]:
+						if(location.Service_Bell=="Y" && location.Existing_Slope=="Y"){
+							return location;
+						}
+						break;
+					//服務鈴+平坦入口
+					case this.barrierOptions[4]:
+						if(location.Service_Bell=="Y" && location.Flat_Entrance=="Y"){
+							return location;
+						}
+						break;
+					//平坦入口	
+					case this.barrierOptions[5]:
+						if(location.Flat_Entrance=="Y"){
+							return location;
+						}
+						break;
+					default:
+						return location;
+						break;
+					}
+				});
+			}
 		},
 		watch: {
 			serverLocations(){
 				this.resetMap();
-				//設定地圖畫面
-				if (this.serverLocations.length > 0){
-		    		latLng = this.serverLocations[0].latlng.split(',');
-		    		pos = {	lat: parseFloat(latLng[0]),	lng: parseFloat(latLng[1])};
-		    		map.setCenter(pos);
-		    	}else{
-		    		 let myGeocoder = new google.maps.Geocoder();
-	                 myGeocoder.geocode({address: this.city+this.zip }, function (results, status) {
-	                     if (status == google.maps.GeocoderStatus.OK) {
+				if(!this.serverLocations){
+					 let myGeocoder = new google.maps.Geocoder();
+	                 myGeocoder.geocode({address: this.city + this.zip}, (results, status) => {
+	                     if (status === google.maps.GeocoderStatus.OK) {
 	                         map.setCenter(results[0].geometry.location);
 	                         map.setZoom(15);
 	                     }
 	                 });
-		    	}
+					
+					return;
+				}
+				
+				
+				//設定地圖畫面 第一個店點
+				let [lat,lng] = this.serverLocations[0].latlng.split(',');
+				pos = {	lat: parseFloat(lat), lng: parseFloat(lng)};
+	    		map.setCenter(pos);
+	    		
 				//設定地圖標的
-				this.serverLocations.forEach(r=>{
-					latLng = r.latlng.split(',');
-					pos = {	lat: parseFloat(latLng[0]),	lng: parseFloat(latLng[1])};
+				this.serverLocations.forEach( location => {
+					let [lat,lng] = location.latlng.split(',');
+					pos = {lat: parseFloat(lat), lng: parseFloat(lng)};
 					
 					let marker = new google.maps.Marker({
 		                position: pos,
 		                map: map,
 		                icon: this.storeIcon,
-		                title: r.title
+		                title: location.title
 		            });
 					
 					let infoWindow = new google.maps.InfoWindow;
@@ -217,7 +220,7 @@ $('body').loadingModal({'animation': 'fadingCircle'});
 					google.maps.event.addListener(marker, "click", function (e) {
 	               	
 						infoWindow.setContent('<h3 style="color: #87286E; font-size:1.3em; margin-bottom: 5px !important;">' + 
-								r.locationName + '</h3><span style="color:#000; font-size:1.1em;">' + r.storeAddress + '</span>');
+								location.locationName + '</h3><span style="color:#000; font-size:1.1em;">' + location.storeAddress + '</span>');
 						infoWindow.open(map,marker)
 	                });
 				});
@@ -281,7 +284,7 @@ $('body').loadingModal({'animation': 'fadingCircle'});
 				if (zip.includes("選擇") || zip.includes("-")){
 					zip="";
 				}
-				if (!!city && !!zip && !!address){
+				if (!city && !zip && !address){
 					return;
 				}
 				$("body").loadingModal('show');
@@ -317,7 +320,6 @@ $('body').loadingModal({'animation': 'fadingCircle'});
 		            
 		        $("body").loadingModal('hide');
 		    },
-
 		    //重設地圖
 		    resetMap(){
 				
@@ -333,7 +335,6 @@ $('body').loadingModal({'animation': 'fadingCircle'});
 		    		map: map
 		    	});
 		    },
-		 
 		    //初始化地圖
 			initMap(){
 				this.resetMap();
@@ -374,5 +375,5 @@ $('body').loadingModal({'animation': 'fadingCircle'});
 			})
 		}
 	})
-
 </script>
+<!-- 服務據點-元件結束 -->
