@@ -1,4 +1,18 @@
 Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, customerId, channel, contractId, handsetName, projectCode, contractStartDate, sourceIp);
-    	ArrayList<Map> resultData = (ArrayList<Map>) couponInfo.get("resultData");
-    	ArrayList<Map> couponStatus = (ArrayList<Map>) resultData.get(0).get("coupon_detail");
-    	resultMap.put("couponStatus",couponStatus);
+ArrayList<Map> resultData = (ArrayList<Map>) couponInfo.get("resultData");
+ArrayList<Map> couponStatus = (ArrayList<Map>) resultData.get(0).get("coupon_detail");
+resultMap.put("couponStatus",couponStatus);
+
+
+Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, customerId, channel, contractId, handsetName, projectCode, contractStartDate, sourceIp);
+if (couponInfo != null) {
+    List<Map<String, Object>> resultData = (List<Map<String, Object>>) couponInfo.get("resultData");
+    if (resultData != null && !resultData.isEmpty()) {
+        List<Map<String, Object>> couponStatus = (List<Map<String, Object>>) resultData.get(0).get("coupon_detail");
+        resultMap.put("couponStatus", couponStatus);
+    } else {
+        resultMap.put("couponStatus", new ArrayList<>());
+    }
+} else {
+    resultMap.put("couponStatus", new ArrayList<>());
+}
