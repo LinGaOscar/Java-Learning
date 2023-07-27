@@ -1,0 +1,4 @@
+Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, customerId, channel, contractId, handsetName, projectCode, contractStartDate, sourceIp);
+    	ArrayList<Map> resultData = (ArrayList<Map>) couponInfo.get("resultData");
+    	ArrayList<Map> couponStatus = (ArrayList<Map>) resultData.get(0).get("coupon_detail");
+    	resultMap.put("couponStatus",couponStatus);
