@@ -1,18 +1,87 @@
-Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, customerId, channel, contractId, handsetName, projectCode, contractStartDate, sourceIp);
-ArrayList<Map> resultData = (ArrayList<Map>) couponInfo.get("resultData");
-ArrayList<Map> couponStatus = (ArrayList<Map>) resultData.get(0).get("coupon_detail");
-resultMap.put("couponStatus",couponStatus);
+@Component
+@Path("/dashboardCoupon")
+public class DashboardCouponController {
+	private Logger log = LoggerFactory.getLogger(this.getClass());
+	@Context
+	private HttpServletRequest req;
 
+	@Autowired
+	private SSOSupportService ssoService;
 
-Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, customerId, channel, contractId, handsetName, projectCode, contractStartDate, sourceIp);
-if (couponInfo != null) {
-    List<Map<String, Object>> resultData = (List<Map<String, Object>>) couponInfo.get("resultData");
-    if (resultData != null && !resultData.isEmpty()) {
-        List<Map<String, Object>> couponStatus = (List<Map<String, Object>>) resultData.get(0).get("coupon_detail");
-        resultMap.put("couponStatus", couponStatus);
-    } else {
-        resultMap.put("couponStatus", new ArrayList<>());
-    }
-} else {
-    resultMap.put("couponStatus", new ArrayList<>());
+	@Autowired
+	private CRMJsonService crmJsonService;
+
+	@Autowired
+	private MCService mcService;
+
+	@Autowired
+	private CRM2021Service crm2021Service;
+
+	// 發送OTP
+	@POST
+	@Path("/queryOtp")
+	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
+	public Map<String, Object> getOTP(@FormParam("msisdn") String msisdn, @FormParam("custId") String custId) {
+		String sourceIp = req.getRemoteAddr();
+		String actName = "pcm";
+		// 檢核用戶
+		Map<String, Object> userProfileInMC = mcService.getUserProfileByMsisdn(msisdn);
+		if (userProfileInMC == null) {
+			// 非現有TS用戶
+			return crm2021Service.sendOtp(msisdn, sourceIp, actName);
+		} else {
+			// 現有TS用戶
+			Map<String, Object> resultMap = new HashMap<>();
+			resultMap.put("statusCode", null);
+			resultMap.put("statusDesc", "TS用戶請登入後查詢");
+			return resultMap;
+		}
+	}
+
+	// 驗證OTP
+	@POST
+	@Path("/submitOtp")
+	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
+	public Map<String, Object> getCheckOtp(@FormParam("msisdn") String msisdn, @FormParam("otp") String otpNum) {
+		String sourceIp = req.getRemoteAddr();
+		String actName = "pcm";
+		return crm2021Service.checkOtp(msisdn, sourceIp, otpNum, actName);
+	}
+
+	// 查詢用戶優惠卷資訊 PCM + T-Coupon
+	@POST
+	@Path("/getCoupon")
+	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
+	public Map<String, Object> getCoupon(@FormParam("msisdn") String msisdn, @FormParam("custId") String custId) {
+		Map<String, Object> resultMap = new HashMap<>();
+		String sourceIp = req.getRemoteAddr();
+		// SSO 使用者登入資訊
+		UserProfileBean profile = ssoService.getProfileWithoutCheck(req);
+
+		// SSO沒資料 用OTP登入查詢優惠卷
+		if (profile == null) {
+			Map<String, Object> couponInfo = crm2021Service.getCouponOTP(msisdn, custId, sourceIp);
+			resultMap.put("couponStatus", couponInfo);
+		}
+
+		// 使用者登入狀態 優惠卷查詢 含配發
+		String channel = profile.getChannel();
+		String contractId = profile.getContractId();
+		String projectCode = profile.getMcProfile().getProjectCode();
+		String contractStartDate = profile.getMcProfile().getProjectEffectiveDate();
+		WsESALLPROFILEXWS xws = crmJsonService.spESALLPROFILEXWS(msisdn, contractId);
+		String handsetName = xws.getHANDSET();
+
+		Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, custId, channel, contractId, handsetName,
+				projectCode, contractStartDate, sourceIp);
+		if (couponInfo != null) {
+			List<Map<String, Object>> resultData = (List<Map<String, Object>>) couponInfo.get("resultData");
+			List<Map<String, Object>> couponStatus = (List<Map<String, Object>>) resultData.get(0).get("coupon_detail");
+			resultMap.put("couponStatus", couponStatus);
+		} else {
+			resultMap.put("couponStatus", null);
+		}
+
+		return resultMap;
+	}
 }
