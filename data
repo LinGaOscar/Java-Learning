@@ -1,0 +1,67 @@
+[
+    {
+        "definitionId": "1364",
+        "tableName": "VASCP",
+        "columnName": "Disney",
+        "columnValue": "Disney+_24M加掛型早鳥案",
+        "definition": "SVC20230627180653637",
+        "isDelete": "N",
+        "seq": "1",
+        "createUser": "Admin",
+        "createTime": "2023/7/12 上午 11:30:28",
+        "updateUser": "16036787",
+        "updateTime": "2023/7/12 上午 11:39:55"
+    },
+    {
+        "definitionId": "1366",
+        "tableName": "VASCP",
+        "columnName": "Disney",
+        "columnValue": "Disney+_24M綁約型",
+        "definition": "SVC20230201165920669",
+        "isDelete": "N",
+        "seq": "2",
+        "createUser": "Admin",
+        "createTime": "2023/7/17 下午 02:30:09",
+        "updateUser": "",
+        "updateTime": ""
+    },
+    {
+        "definitionId": "1367",
+        "tableName": "VASCP",
+        "columnName": "Disney",
+        "columnValue": "Disney+_12M綁約型",
+        "definition": "SVC20230201165626252",
+        "isDelete": "N",
+        "seq": "3",
+        "createUser": "Admin",
+        "createTime": "2023/7/17 下午 02:30:09",
+        "updateUser": "",
+        "updateTime": ""
+    },
+    {
+        "definitionId": "1368",
+        "tableName": "VASCP",
+        "columnName": "Disney",
+        "columnValue": "Disney+_加值型",
+        "definition": "SVC20230201162445429",
+        "isDelete": "N",
+        "seq": "4",
+        "createUser": "Admin",
+        "createTime": "2023/7/17 下午 02:30:09",
+        "updateUser": "",
+        "updateTime": ""
+    },
+    {
+        "definitionId": "1374",
+        "tableName": "VASCP",
+        "columnName": "Disney",
+        "columnValue": "Disney+_6M綁約型",
+        "definition": "SVC20230721103710818",
+        "isDelete": "N",
+        "seq": "5",
+        "createUser": "Admin",
+        "createTime": "2023/8/2 下午 04:29:03",
+        "updateUser": "",
+        "updateTime": ""
+    }
+]
