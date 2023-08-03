@@ -72,3 +72,7 @@ data.forEach(item => {
     matchingDefinitions.push(item.definition);
   }
 });
+
+const matchingDefinitions = data
+  .filter(item => item.columnValue === "Disney+_加值型")
+  .map(item => item.definition);
