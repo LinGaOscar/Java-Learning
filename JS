@@ -1,0 +1,41 @@
+verifyCaptcha(){  
+            		$.post('<p:base/>/rest/captcha/verifyCode',{captcha : this.captcha.inputcaptcha, encodedCaptcha : this.captcha.encodedcaptcha})
+            		.done(result => {
+            			if(result === 'true'){
+            				this.captcha.invalidCheck = false;
+            			}else{
+            				this.captcha.invalidCheck = true;
+                    		this.captcha.inputcaptcha ='';
+            			}   		        	
+            		});
+            	}, 
+            	otpQuery(){
+            		this.isMsisdnValid(this.customer.msisdn);
+                	this.isIdValid(this.customer.custId);
+                	this.verifyCaptcha();
+            		
+                	if(this.captcha.invalidCheck || this.customer.msisdnIsInvalid ||this.customer.custIdIsInvalid){
+            			alert('請輸入正確資料');
+            			return;
+            		}
+            		$('body').loadingModal({'animation': 'fadingCircle'});
+            		
+                	$.post('<p:base/>/rest/dashboardCoupon/queryOtp',{msisdn : this.customer.msisdn, custId : this.customer.custId})
+            		.done(result => {
+            			if(result.statusCode == "0000"){
+            				this.showOtpInput = false;
+                        	this.showOtpVerification = true;
+                        	this.startCountDown();
+                        	this.smsOtp.times=result.resultData.sms_time;
+            			}else{
+            				alert(result.statusDesc);
+            				if(result.statusCode != "9999"){
+            					this.goToLogin();
+            				}
+            			} 
+            		}).fail(jqXHR => {
+                        alert(jqXHR.responseText);
+                    }).always(() => {
+                        $('body').loadingModal('hide');
+                    });
+            	},
