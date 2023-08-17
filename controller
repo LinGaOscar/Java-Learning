@@ -1,7 +1,6 @@
 @Component
-@Path("/dashboardCoupon")
-public class DashboardCouponController {
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+@Path("/dcbUpgrade")
+public class DcbUpgradeController {
 	@Context
 	private HttpServletRequest req;
 
@@ -9,79 +8,63 @@ public class DashboardCouponController {
 	private SSOSupportService ssoService;
 
 	@Autowired
-	private CRMJsonService crmJsonService;
+	private DCBService dcbService;
 
-	@Autowired
-	private MCService mcService;
-
-	@Autowired
-	private CRM2021Service crm2021Service;
-
-	// 發送OTP
+	// 取得使用者DCB升級初始狀態
 	@POST
-	@Path("/queryOtp")
+	@Path("/queryUpgradeInfo")
 	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
-	public Map<String, Object> getOTP(@FormParam("msisdn") String msisdn, @FormParam("custId") String custId) {
-		String sourceIp = req.getRemoteAddr();
-		String actName = "pcm";
-		// 檢核用戶
-		Map<String, Object> userProfileInMC = mcService.getUserProfileByMsisdn(msisdn);
-		if (userProfileInMC == null) {
-			// 非現有TS用戶
-			return crm2021Service.sendOtp(msisdn, sourceIp, actName);
-		} else {
-			// 現有TS用戶
-			Map<String, Object> resultMap = new HashMap<>();
-			resultMap.put("statusCode", null);
-			resultMap.put("statusDesc", "TS用戶請登入後查詢");
-			return resultMap;
-		}
-	}
-
-	// 驗證OTP
-	@POST
-	@Path("/submitOtp")
-	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
-	public Map<String, Object> getCheckOtp(@FormParam("msisdn") String msisdn, @FormParam("otp") String otpNum) {
-		String sourceIp = req.getRemoteAddr();
-		String actName = "pcm";
-		return crm2021Service.checkOtp(msisdn, sourceIp, otpNum, actName);
-	}
-
-	// 查詢用戶優惠卷資訊 PCM + T-Coupon
-	@POST
-	@Path("/getCoupon")
-	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
-	public Map<String, Object> getCoupon(@FormParam("msisdn") String msisdn, @FormParam("custId") String custId) {
-		Map<String, Object> resultMap = new HashMap<>();
-		String sourceIp = req.getRemoteAddr();
+	public Map<String, Object> getDcbUpgradeInfo() {
 		// SSO 使用者登入資訊
-		UserProfileBean profile = ssoService.getProfileWithoutCheck(req);
+		UserProfileBean userProfile = ssoService.getProfile(req);
+		String msisdn = userProfile.getMsisdn();
+		String contractId = userProfile.getContractId();
 
-		// SSO沒資料 用OTP登入查詢優惠卷
-		if (profile == null) {
-			Map<String, Object> couponInfo = crm2021Service.getCouponOTP(msisdn, custId, sourceIp);
-			resultMap.put("couponStatus", couponInfo);
+		Map<String, Object> dcbUpgradeInfo = dcbService.getDcbUpgradeInfo(msisdn, contractId);
+		String resultCode = (String) dcbUpgradeInfo.get("ResultCode");
+		String message = "系統忙碌，請稍後再試，謝謝。";
+		Map<String, Object> resultData = new HashMap<>();
+		resultData.put("resultCode", resultCode);
+
+		if (resultCode.equals("00000")) {
+			message = (String) dcbUpgradeInfo.get("Message");
 		}
-
-		// 使用者登入狀態 優惠卷查詢 含配發
-		String channel = profile.getChannel();
-		String contractId = profile.getContractId();
-		String projectCode = profile.getMcProfile().getProjectCode();
-		String contractStartDate = profile.getMcProfile().getProjectEffectiveDate();
-		WsESALLPROFILEXWS xws = crmJsonService.spESALLPROFILEXWS(msisdn, contractId);
-		String handsetName = xws.getHANDSET();
-
-		Map<String, Object> couponInfo = crm2021Service.getCoupon(msisdn, custId, channel, contractId, handsetName,
-				projectCode, contractStartDate, sourceIp);
-		if (couponInfo != null) {
-			List<Map<String, Object>> resultData = (List<Map<String, Object>>) couponInfo.get("resultData");
-			List<Map<String, Object>> couponStatus = (List<Map<String, Object>>) resultData.get(0).get("coupon_detail");
-			resultMap.put("couponStatus", couponStatus);
-		} else {
-			resultMap.put("couponStatus", null);
+		if (resultCode.equals("20000")) {
+			message = "用戶資訊異常，無須進行升階，謝謝。";
 		}
+		if (resultCode.equals("20001")) {
+			message = "已升階完成，無須再進行升階，謝謝。";
+		}
+		if (resultCode.equals("20002")) {
+			message = "升階資訊過期，無須進行升階，謝謝。";
+		}
+		resultData.put("message", message);
+		return resultData;
+	}
 
-		return resultMap;
+	// 取得使用者DCB升級初始狀態
+	@POST
+	@Path("/submitUpgrade")
+	@Produces({ APPLICATION_JSON + "; charset=UTF-8" })
+	public Map<String, Object> submitDcbUpgrade() {
+		// SSO 使用者登入資訊
+		UserProfileBean userProfile = ssoService.getProfile(req);
+		String msisdn = userProfile.getMsisdn();
+		String contractId = userProfile.getContractId();
+
+		Map<String, Object> dcbUpgradeResult = dcbService.setDcbUpgrade(msisdn, contractId);
+		String resultCode = (String) dcbUpgradeResult.get("ResultCode");
+		Map<String, Object> resultData = new HashMap<>();
+		resultData.put("resultCode", resultCode);
+		String message = "系統忙碌，請稍後再試，謝謝。";
+		String title = "設定失敗";
+		if (resultCode.equals("00000")) {
+			title = "設定完成";
+			message = "您已完成本次額度調整，謝謝。";
+		}
+		
+		resultData.put("title", title);
+		resultData.put("message", message);
+		return resultData;
 	}
 }
