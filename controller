@@ -1,93 +1,137 @@
-@POST
-    @Path("/update")
-    @Consumes(APPLICATION_FORM_URLENCODED)
-    @Produces(APPLICATION_JSON + "; charset=UTF-8")
-    //public Map<String, Object> getNetwork_Traffic_Update(MultivaluedMap<String, String> formParams) throws Exception {
-    public Map<String, Object> getNetwork_Traffic_Update(@FormParam("s_package") String s_package,
-                                                         @FormParam("s_rateplan") String s_rateplan,
-                                                         @FormParam("s_type") String s_type,
-                                                         @FormParam("s_fee") String s_fee) {
-        log.debug("-------getNetwork_Traffic_Update start-------");
-        Map<String, Object> returnMap = new HashMap<>();
-        String rtMessage = "";
-        String rtContent = "";
-        String rtService = "";
+@GET
+    @Path("/info/4G")
+    @Produces({APPLICATION_JSON + "; charset=UTF-8"})
+    public Map<String, Object> get4GInfo() {
+        Map<String, Object> map = new HashMap<>();
         UserProfileBean profileBean = ssoService.getProfile(req);
-        String msisdn = profileBean.getMsisdn();
-        String contractId = profileBean.getContractId();
 
-        log.debug("-------msisdn=" + msisdn + "-------");
-        log.debug("-------contractId=" + contractId + "-------");
-        log.debug("-------s_package=" + s_package + "-------");
-        log.debug("-------s_rateplan=" + s_rateplan + "-------");
-        //jsp頁面只能有一個input hidden name="s_fee"才能正確取到值(input redio 取有點選的)
-        //若有兩個以上input hidden name="s_fee"，有時會取第一個，有時取不到值
-        log.debug("-------s_type=" + s_type + "-------");
-
-        /**/
-        String s_Return = null;
-        String SERIAL_NO = null;
-        String s_Mesg = null;
-        // 查詢目前申裝狀態透過SSO取出資料
-
-        log.debug("-------crmservice.getSP_Ins_Cod_4GSR_Update() start-------");
-        WsRsInsCod4GSR map1 = null;
-        // 5G直接由頁面帶回Fee值
-        if (StringUtils.isBlank(s_fee)) s_fee = this.getFee(s_rateplan);
-        log.debug("-------s_fee=" + s_fee + "-------");
-        if (s_fee != null) {
-            log.debug("-------s_fee=" + s_fee + "-------");
-            map1 = crmservice.getSP_Ins_Cod_4GSR_Update(s_package, s_rateplan, s_fee, s_type, SERVICE_CODE, profileBean);
+        // 若為3G 或 wsLteOrder=null 頁面alert 系統忙碌中，頁面不執行foreach
+        // 若wslteOrder!=null 則為4G，頁面執行foreach，不論其是否為4G吃到飽
+        // canBuy : available 可以加購 | unavailable: 不能加購
+        // underPercentage : 傳輸量未答7成
+        // overAmount : 加購超過3000元
+        String canBuy = "unavailable";
+        String companyId = profileBean.getCrmProfile().getPRODUCTTYPE();
+        // 非4G,5G月租型
+        if (profileBean.getCrmProfile() != null && (!companyId.equals(productType4GPostpay) && !companyId.equals(productType5GPostpay))) {
+            map.put("result", "notQuota");
+            map.put("canBuy", canBuy);
+            map.put("canBuyMes", "");
+            return map;
         }
 
-        if (map1 != null) {
-            s_Return = (String) map1.getSReturn();
-            SERIAL_NO = (String) map1.getSERIALNO();
-            s_Mesg = (String) map1.getSMesg();
+        List<WsUsageInfo> usageInfoList = new ArrayList<>();
+        WsLteOrder wsLteOrder = uppservice.getWsLteOrder(profileBean, "UNBILLED_GSNSUM_QUERY"); // 傳輸使用量查詢  (From UPP: 以此為主）
+        List<WsUsageInfo> list4GSR = crmservice.getSP_Qry_4GSR(SERVICE_CODE, profileBean); // 傳輸使用量查詢 (From CRM: 不再使用）
+        List<WsQry4Gsr> listTopUp4GSR = crmservice.getSP_Qry_TopUp_4GSR(SERVICE_CODE, profileBean); // 加購傳輸量, 至少會回傳size為0的list
+        double amount = billService.get4GAmount(profileBean);//取得加價購金額
 
-            log.debug("-------s_Return=" + s_Return + "-------");
-            log.debug("-------SERIAL_NO=" + SERIAL_NO + "-------");
-            log.debug("-------s_Mesg=" + s_Mesg + "-------");
-        } else {
-            log.debug("-------map1 is null-------");
-        }
+        WsCustomerProjectInfo customerProjectInfo = billService.getCustomerProjectInfo(profileBean); //取得專案名稱
+        String projectName = customerProjectInfo != null ? customerProjectInfo.getProjectName() : "";
 
-        if (s_Return != null && s_Return.equalsIgnoreCase("S")) {
-            rtMessage = "S";
-            rtContent = messageSource.getMessage("transQuanPlug_S_success", null, Locale.getDefault());
-            String message;
-            if (s_type.equalsIgnoreCase("Upd_Plan")) {
-                message = "Upd_Plan";
-            } else if (s_type.equalsIgnoreCase("TOPUP")) {
-                message = "TOPUP";
-            } else if (s_type.equalsIgnoreCase("OTT")) {
-                message = "OTT";
-            } else {
-                message = "";
+        if (wsLteOrder != null) {
+            if (wsLteOrder.getQOS().equalsIgnoreCase("THROTTLING_OFF")) {
+                //為4G吃到飽
+                map.put("result", "notQuota");
+                map.put("canBuy", canBuy);
+                map.put("canBuyMes", "");
+                return map;
             }
-            log.debug("-------PersonalConstants.Information_message=" + message + "-------");
-        } else {
-            if ("001".equals(s_Mesg)) {
-                rtMessage = "P";
-                rtContent = messageSource.getMessage("transQuanPlug_P_processing", null, Locale.getDefault());
+
+            HashMap hm = new HashMap();
+            if (wsLteOrder.getUsageInfo() != null && wsLteOrder.getUsageInfo().getWsUsageInfo().size() > 0) {
+                List<com.tstar.portal.outbound.cms.upp.WsUsageInfo> list = wsLteOrder.getUsageInfo().getWsUsageInfo();
+
+                usageInfoList = new ArrayList();
+                for (int i = 0; i < list.size(); i++) {
+                    com.tstar.portal.outbound.cms.upp.WsUsageInfo usageInfo = list.get(i);
+                    if (usageInfo.getType().equalsIgnoreCase("Plan") || usageInfo.getType().equalsIgnoreCase("RollOverPlan") || usageInfo.getType().equalsIgnoreCase("TopUp")) {
+                        WsUsageInfo wsUsageInfo_tmp = new WsUsageInfo();
+                        BeanUtils.copyProperties(usageInfo, wsUsageInfo_tmp);
+                        usageInfoList.add(wsUsageInfo_tmp);
+
+                        if (usageInfo.getType().equalsIgnoreCase("TopUp")) {
+                            hm.put(usageInfo.getName(), usageInfo.getType());
+                        }
+                    }
+                }
+
+                if (list4GSR != null && list4GSR.size() > 0) {
+                    for (int i = 0; i < list4GSR.size(); i++) {
+                        WsUsageInfo usageInfo = list4GSR.get(i);
+                        // 僅計算Plan＋TopUp部分的傳輸量
+                        if (usageInfo.getType().equalsIgnoreCase("Plan") || usageInfo.getType().equalsIgnoreCase("TopUp")) {
+                            if (!hm.containsKey(usageInfo.getName())) {
+                                usageInfoList.add(usageInfo);
+                            }
+                        }
+                    }
+                }
+
+                if (usageInfoList.size() == 0) {
+                    map.put("usageInfoList", usageInfoList);
+                    //代表客戶可以有加購的資格，可以有目前使用的方案，可以有列出加購的方案
+                } else {
+                    map.put("usageInfoList", usageInfoList);
+                }
             } else {
-                rtMessage = "E";
-                rtContent = messageSource.getMessage("transQuanPlug_E_error", null, Locale.getDefault());
+                map.put("usageInfoList", usageInfoList);
             }
-            log.debug("-------UPP return error message =" + s_Mesg + "-------");
+
+            // 加購傳輸量
+            // 如果PCRF回傳無資料, 企網畫面要防呆"不可加購"，且QOS為THROTTLING_ON
+            if (wsLteOrder != null && wsLteOrder.getErrorCode().equals("0") && wsLteOrder.getQOS().equalsIgnoreCase("THROTTLING_ON")) {
+                //THROTTLING_ON-->不是吃到飽，THROTTLING_OFF-->是吃到飽
+                if (listTopUp4GSR != null && listTopUp4GSR.size() > 0) {
+                    map.put("listTopUp4GSR", listTopUp4GSR);
+                } else {
+                    map.put("listTopUp4GSR", listTopUp4GSR);
+                }
+            } else {
+                listTopUp4GSR = new ArrayList<>();
+                map.put("listTopUp4GSR", listTopUp4GSR);
+            }
+            map.put("project_name", projectName);
+
+        } else {
+            //flag = true;
+            //wsLteOrder = null
+            //代表此客戶不能有加購方案，也不能有目前使用的方案，為了要讓頁面不出錯，要回傳size為0的list
+            map.put("result", "wsLteOrderIsNull");
+            map.put("project_name", projectName);
+            map.put("usageInfoList", usageInfoList);
+            map.put("listTopUp4GSR", listTopUp4GSR);
+            map.put("canBuy", canBuy);
+            map.put("canBuyMes", "");
         }
 
-        rtService = messageSource.getMessage("transQuanPlug_service", null, Locale.getDefault());
+        String limitCriteria = "";
 
-        log.debug("-------rtMessage=" + rtMessage + "-------");
-        log.debug("-------rtContent=" + rtContent + "-------");
-        log.debug("-------rtService=" + rtService + "-------");
-        log.debug("-------getNetwork_Traffic_Update end-------");
+        //查詢使用是否超過7成
+        for (WsUsageInfo wsui : usageInfoList) {
+            if (Integer.parseInt(wsui.getUsageP()) < 70) {
+                //canBuy = "underPercentage";
+                limitCriteria = "underPercentage";
+            }
+        }
 
-        //return rtMessage;
-        returnMap.put("rtMessage", rtMessage);
-        returnMap.put("rtContent", rtContent);
-        returnMap.put("rtService", rtService);
-        return returnMap;
+        // 是否已購買金額達3000元
+        String canBuyMes = "";
+        if ("underPercentage".equals(limitCriteria)) {
+            canBuy = "underPercentage";
+            canBuyMes = messageSource.getMessage("transQuanPlug_buy_underPercentage", null, Locale.getDefault());
+        } else {
+            if (amount >= 3000) {
+                canBuy = "overAmount";
+                canBuyMes = messageSource.getMessage("transQuanPlug_buy_overAmount", null, Locale.getDefault());
+            } else {
+                canBuy = "available";
+                canBuyMes = messageSource.getMessage("transQuanPlug_buy_canby", null, Locale.getDefault());//在jsp頁面上用不到
+            }
+        }
 
+        map.put("project_name", projectName);
+        map.put("canBuy", canBuy);
+        map.put("canBuyMes", canBuyMes);
+        return map;
     }
