@@ -1,78 +1,29 @@
-[
-    {
-        "definitionId": "1364",
-        "tableName": "VASCP",
-        "columnName": "Disney",
-        "columnValue": "Disney+_24M加掛型早鳥案",
-        "definition": "SVC20230627180653637",
-        "isDelete": "N",
-        "seq": "1",
-        "createUser": "Admin",
-        "createTime": "2023/7/12 上午 11:30:28",
-        "updateUser": "16036787",
-        "updateTime": "2023/7/12 上午 11:39:55"
-    },
-    {
-        "definitionId": "1366",
-        "tableName": "VASCP",
-        "columnName": "Disney",
-        "columnValue": "Disney+_24M綁約型",
-        "definition": "SVC20230201165920669",
-        "isDelete": "N",
-        "seq": "2",
-        "createUser": "Admin",
-        "createTime": "2023/7/17 下午 02:30:09",
-        "updateUser": "",
-        "updateTime": ""
-    },
-    {
-        "definitionId": "1367",
-        "tableName": "VASCP",
-        "columnName": "Disney",
-        "columnValue": "Disney+_12M綁約型",
-        "definition": "SVC20230201165626252",
-        "isDelete": "N",
-        "seq": "3",
-        "createUser": "Admin",
-        "createTime": "2023/7/17 下午 02:30:09",
-        "updateUser": "",
-        "updateTime": ""
-    },
-    {
-        "definitionId": "1368",
-        "tableName": "VASCP",
-        "columnName": "Disney",
-        "columnValue": "Disney+_加值型",
-        "definition": "SVC20230201162445429",
-        "isDelete": "N",
-        "seq": "4",
-        "createUser": "Admin",
-        "createTime": "2023/7/17 下午 02:30:09",
-        "updateUser": "",
-        "updateTime": ""
-    },
-    {
-        "definitionId": "1374",
-        "tableName": "VASCP",
-        "columnName": "Disney",
-        "columnValue": "Disney+_6M綁約型",
-        "definition": "SVC20230721103710818",
-        "isDelete": "N",
-        "seq": "5",
-        "createUser": "Admin",
-        "createTime": "2023/8/2 下午 04:29:03",
-        "updateUser": "",
-        "updateTime": ""
-    }
-]
-
-
-data.forEach(item => {
-  if (item.columnValue === "Disney+_加值型") {
-    matchingDefinitions.push(item.definition);
-  }
-});
-
-const matchingDefinitions = data
-  .filter(item => item.columnValue === "Disney+_加值型")
-  .map(item => item.definition);
+resultData=[
+{project_code=121842, 
+handset_name=OTH 3000_MO, 
+contract_start_date=2018/01/17,
+get_datetime=2023/08/22 16:09:01, 
+coupon_detail=[
+	{
+	act_type=momo, act_name=momo專案, 
+	pick_up_type=專案搭配, coupon_code=Eq6cuWFHbJWe, 
+	coupon_name=$3000 momo幣, coupon_pin=null, 
+	sponsor_url=https://momo.dm/Smc79FrM, end_date=2023/12/19}]
+	}, 
+	
+{project_code=null, 
+handset_name=null, 
+contract_start_date=null, 
+get_datetime=null, 
+coupon_detail=[
+	{act_type=CR, act_name=家樂福電子禮券, 
+	pick_up_type=專案贈送, coupon_code=null, 
+	coupon_name=$1,000, coupon_pin=UAT_0822, 
+	sponsor_url=https://giftcard.carrefour.com.tw/giftcard/test0822, 
+	nd_date=
+	}, 
+	{act_type=MO, act_name=momo幣, 
+	pick_up_type=專案贈送, coupon_code=null, 
+	coupon_name=$1,200, coupon_pin=XsAkWQJMr3ac, 
+	sponsor_url=https://momo.dm/Smc79FrM, end_date=2023/12/19
+	}]}]] 
