@@ -1,5 +1,165 @@
-verifyCaptcha(){  
-            		$.post('<p:base/>/rest/captcha/verifyCode',{captcha : this.captcha.inputcaptcha, encodedCaptcha : this.captcha.encodedcaptcha})
+<%--Vue MVVM--%>
+<script language="javascript">
+        Vue.directive('real-img', async function (el, binding) {
+            let defaultImg = "resources/rwd_c_110/images/coupon_default.jpg";   //預設圖片
+            el.setAttribute('src', defaultImg);
+            let fcImg = "resources/rwd_c_110/images/type_fc_coffee.jpg";   //全家咖啡券
+            let fpImg = "resources/rwd_c_110/images/type_fp_tissue.jpg";   //全家衛生紙
+            let ffImg = "resources/rwd_c_110/images/type_ff_fruit.jpg";   //全家水果盒
+            let pcmImg = "resources/rwd_c_110/images/type_pcm_coupon.jpg";   //家樂福禮券
+            let moImg = "resources/rwd_c_110/images/type_mo_coupon.png";   //MOMO禮券
+            
+            if (binding.value.toUpperCase() === "FC") {
+                el.setAttribute('src', fcImg);
+            }
+            if (binding.value.toUpperCase() === "FP") {
+                el.setAttribute('src', fpImg);
+            }
+            if (binding.value.toUpperCase() === "FF") {
+                el.setAttribute('src', ffImg);
+            }
+            // MOMO
+            if (binding.value.toUpperCase().includes("MO")) {
+                el.setAttribute('src', moImg);
+            }
+            // PCM 跟 CR
+         	if (binding.value.toUpperCase() === "PCM" || binding.value.toUpperCase() === "CR"|| binding.value ==="Carrefour") {
+            	el.setAttribute('src', pcmImg);
+            }
+        });
+
+        const vm = new Vue({
+            el: '<p:iId prefix="#"/>',
+            data: {
+            	<!-- 使用者資料 -->
+            	customer: {
+            		msisdn: '',
+            		custId: '',
+            		msisdnIsInvalid: false,
+            		custIdIsInvalid: false
+            	},
+            	<!-- 登入驗證 -->
+            	isLogin:false,
+            	<!-- 畫面顯示區塊 -->
+            	showOtpInput: true,
+            	showOtpVerification: false,
+            	showCoupon: false,
+            	<!-- 驗證碼 -->
+            	captcha: {
+            		inputcaptcha : '',
+	            	encodedcaptcha : '',
+	            	captchasrc : '',
+	            	invalidCheck : true
+	            },
+	            countdown: 0,
+	            smsOtp:{
+	            	code:'',
+	            	times:0,
+	            	invalidCheck: false,
+	            	emptyCheck: false
+	            },
+            	
+                tabTitle: "可用優惠券",
+                <!--可用折扣券區塊-->
+                tPocketCount: 0,
+                tPocketList: [],
+                tpocketDetail: '',
+                tPocketFlag: true,
+                <!--可用折扣券區塊 loadmore 閥值-->
+                tPocketNum: '9',
+                showDetailFlag: false,
+                <!-- 優惠券內文 -->
+                pcmContentDes: '於家樂福電子禮券網址輸入密碼完成兌換，憑畫面至家樂福實體門市使用',
+                fcContentDes: '全家熱拿鐵(大)杯於序號歸戶後透過全家APP至全省全家便利商店分次分店提領，咖啡之提領最小單位為乙杯。',
+                ffContentDes: '特級衛生紙(8包)於序號歸戶後透過全家APP至全省全家便利商店分次分店提領，衛生紙之最小提領單位為乙串(8包)。',
+                fpContentDes: '全家水果盒於序號歸戶後透過全家APP至全省全家便利商店分次分店提領，水果盒之最小提領單位為乙盒。',
+                momoContentDes: 'momo幣視同現金使用，每1點momo幣等於新台幣1元，可100%抵用。',
+                <!-- 優惠券使用說明 -->
+                pcmUseContent: '點擊兌換網址，輸入密碼進行兌換',
+                fmUseContent: '請持商品序號至全家便利商店APP中-商品預售，輸入序號進行商品歸戶',
+                momoUseContent: '於momo購物網完成歸戶後方可使用',
+                <!-- 注意事項 -->
+	            pcmNoteItem: '1、家樂福即享券限實體賣場使用；使用請開啟完整券樣並輸入密碼至收銀台兌換。<br>2、家樂福即享券不適用家樂福線上購物、美食街及商店街。<br>3、家樂福電子禮券使用期限依家樂福官網公告規定，但建議於門號開通一年內使用完畢；另外，為保障你的權益，建議將領取的家樂福禮券歸戶至家樂福會員帳戶(請下載家樂福 APP)。<br>4、詳細點數使用方式及規則請參考家樂福官網、APP說明。',
+	            fmNoteItem: '1、全家商品兌換序號建議於合約期限內盡快使用完畢。<br>2、可跨店領取，全台全家便利商店皆可取貨(各商品品項貨量仍以各店鋪實際庫存為主)。<br>3、商品兌換序號皆為指定品項，無法更換成其他品項或等價商品，如冰拿鐵不得更換為熱拿鐵。',
+	            momoNoteItem: '1、momo幣視同現金使用，每1點momo幣等於新台幣1元。<br>2、本活動專案所享之momo幣用戶需於收到發放通知簡訊後31天內點選簡訊內連結，登入台灣之星官網領取momo幣兌換連結，並自行由兌換連結至momo購物網登入會員(如尚未成為momo購物網會員，請先行申辦加入會員)，將momo幣完成歸戶至momo購物網會員帳戶後方可使用，逾期恕無法領取及兌換momo幣。<br>3、momo幣一旦歸戶後，將無法收回、移轉或變更，需自行確認兌換之帳號是否正確。<br>4、倘欲於申辦並開通本活動專案7日後辦理取消交易者，用戶應返還本活動專案搭配momo幣相同額度之金額後，始得辦理。<br>5、momo幣使用期限以APP顯示為準，請務必於效期內使用完畢。<br>6、詳細momo幣使用方式及規則請參考momo購物網或APP公告為準。',
+            },
+            created() {
+            	this.loginCheck();
+            	if(this.isLogin){
+            		this.getCoupon();
+            	}else{
+            		this.getCaptcha();
+            	}
+            },
+            //TWM 門號隱碼:手機號碼需隱6-8碼 maskMsisdnTWM 
+            filters:{
+            	msisdnBlock: function(value){
+            		return value.split('').map(function (cur, idx) { if (idx >= 6 && idx <= 8) return '*'; else return cur; }).join('');
+            	}
+            },
+            filters:{
+            	showEndDate(date){
+            		return date ? date :"無限制";
+            	}
+            },
+            methods: {
+            	loginCheck(){
+            		<p:login>
+            			const msisdn = '${msisdn}';
+            			const custId = '${code_custId}';
+            			
+            			this.isMsisdnValid(msisdn);
+            			this.isIdValid(custId);
+            			
+            			if(!this.customer.msisdnIsInvalid && !this.customer.custIdIsInvalid){
+            				this.customer.msisdn = msisdn;
+            				this.customer.custId = custId;
+            				this.isLogin = true;
+            				this.showOtpInput=false;
+                			this.showOtpVerification=false;
+            			}
+            		</p:login>
+            	},
+            	goToLogin(){
+            		<p:logoff>
+            			window.location.href = '${login_url}';
+            		</p:logoff>
+            	},
+            	isMsisdnValid(msisdn){
+            		isValid = /^09\d{8}$/.test(msisdn);
+            		this.customer.msisdnIsInvalid=!isValid;
+            	},
+            	isIdValid(custId){
+            		isValid = /^[A-Z][12]\d{8}$/.test(custId);
+            		this.customer.custIdIsInvalid=!isValid;
+            	},
+            	startCountDown(){
+            		if(this.countdown === 0){
+            			this.countdown = 300;
+            			const timer = setInterval(() => {
+							this.countdown--;
+							if(this.countdown === 0){
+								clearInterval(timer);
+							}
+						}, 1000);
+            		}
+            	},
+            	resendOtp(){
+            		this.startCountDown();
+            		this.otpQuery();
+            	},
+            	getCaptcha(){  
+            		$('body').loadingModal({'animation': 'fadingCircle'});
+
+            		$.get('<p:base/>/rest/captcha/digits')
+            		.done(encodedCaptcha => {
+            			this.captcha.encodedcaptcha = encodedCaptcha;
+            			this.captcha.captchasrc = '<p:base/>/rest/captcha/' + encodedCaptcha + '.jpg';
+            		});
+            		$('body').loadingModal('hide');
+            	},
+            	async verifyCaptcha(){  
+            		await $.post('<p:base/>/rest/captcha/verifyCode',{captcha : this.captcha.inputcaptcha, encodedCaptcha : this.captcha.encodedcaptcha})
             		.done(result => {
             			if(result === 'true'){
             				this.captcha.invalidCheck = false;
@@ -9,10 +169,10 @@ verifyCaptcha(){
             			}   		        	
             		});
             	}, 
-            	otpQuery(){
+            	async otpQuery(){
             		this.isMsisdnValid(this.customer.msisdn);
                 	this.isIdValid(this.customer.custId);
-                	this.verifyCaptcha();
+                	await this.verifyCaptcha();
             		
                 	if(this.captcha.invalidCheck || this.customer.msisdnIsInvalid ||this.customer.custIdIsInvalid){
             			alert('請輸入正確資料');
@@ -20,7 +180,7 @@ verifyCaptcha(){
             		}
             		$('body').loadingModal({'animation': 'fadingCircle'});
             		
-                	$.post('<p:base/>/rest/dashboardCoupon/queryOtp',{msisdn : this.customer.msisdn, custId : this.customer.custId})
+            		await $.post('<p:base/>/rest/dashboardCoupon/queryOtp',{msisdn : this.customer.msisdn, custId : this.customer.custId})
             		.done(result => {
             			if(result.statusCode == "0000"){
             				this.showOtpInput = false;
@@ -29,8 +189,11 @@ verifyCaptcha(){
                         	this.smsOtp.times=result.resultData.sms_time;
             			}else{
             				alert(result.statusDesc);
-            				if(result.statusCode != "9999"){
+            				if(result.statusCode === "TS0000"){
             					this.goToLogin();
+            				}
+            				else{
+            					window.location.reload();
             				}
             			} 
             		}).fail(jqXHR => {
@@ -39,3 +202,99 @@ verifyCaptcha(){
                         $('body').loadingModal('hide');
                     });
             	},
+            	otpSubmit(){
+                	if(this.smsOtp.code === ""){
+                		this.smsOtp.emptyCheck = true;
+                		return;
+                	}
+                	
+                	$('body').loadingModal({'animation': 'fadingCircle'});
+                	$.post('<p:base/>/rest/dashboardCoupon/submitOtp',{msisdn : this.customer.msisdn, otp : this.smsOtp.code})
+            		.done(result => {
+            			if(result.statusCode == "0000"){
+            				this.showOtpInput = false;
+                			this.showOtpVerification = false;
+                			this.getCoupon();
+            			}else{
+            				alert(result.resultData);
+            				window.location.reload();
+            			} 
+            		}).fail(jqXHR => {
+                        alert(jqXHR.responseText);
+                    }).always(() => {
+                        $('body').loadingModal('hide');
+                    });
+            	},
+            	getCoupon(){
+            		$('body').loadingModal({'animation': 'fadingCircle'});
+            		
+                    $.post('<p:base/>/rest/dashboardCoupon/getCoupon',{msisdn : this.customer.msisdn, custId : this.customer.custId})
+                     .done(result => {
+                    	 this.tPocketList = result.couponStatus;
+                    	 if(!this.tPocketList){
+                    		 this.tPocketList = [];
+                    	 }else{
+                             this.tPocketList.forEach((item) => {
+                                 if (item.act_type.toUpperCase() === "FC") {
+                                     item.coupon_content_desc = this.fcContentDes;
+                                     item.coupon_use_content = this.fmUseContent;
+                                     item.noteItem = this.fmNoteItem;
+                                 }
+                                 if (item.act_type.toUpperCase() === "FF") {
+                                     item.coupon_content_desc = this.ffContentDes;
+                                     item.coupon_use_content = this.fmUseContent;
+                                     item.noteItem = this.fmNoteItem;
+                                 }
+                                 if (item.act_type.toUpperCase() === "FP") {
+                                     item.coupon_content_desc = this.fpContentDes;
+                                     item.coupon_use_content = this.fmUseContent;
+                                     item.noteItem = this.fmNoteItem;
+                                 }
+                                 if (item.act_type.toUpperCase().includes("MO")) {
+                                     item.coupon_content_desc = this.momoContentDes;
+                                     item.coupon_use_content = this.momoUseContent;
+                                     item.noteItem = this.momoNoteItem;
+                                 }
+                                 if (item.act_type.toUpperCase() === "PCM" || item.act_type.toUpperCase() === "CR"|| item.act_type === "Carrefour") {
+                                     item.coupon_content_desc = this.pcmContentDes;
+                                     item.coupon_use_content = this.pcmUseContent;
+                                     item.noteItem = this.pcmNoteItem;
+                                 }
+                             });
+                             this.tPocketCount = this.tPocketList.length;
+                    	 }
+                     }).fail(jqXHR => {
+                         alert(jqXHR.responseText);
+                         window.location.reload();
+                     })
+                     .always(() => {
+                    	 this.showCoupon = true;
+                         $('body').loadingModal('hide');
+                     });
+            	},
+                nonShowDetail() {
+                    this.tabTitle = "可用優惠券";
+                    this.showDetailFlag = false;
+                },
+                showDetail(record) {
+                    this.tabTitle = "返回優惠券列表";
+                    this.showDetailFlag = true;
+                    this.tpocketDetail = record;
+                },
+                <!--可用折扣券看更多-->
+                tPocketMore() {
+                    this.tPocketFlag = false;
+                    this.tPocketNum = this.tPocketList.length;
+                },
+                isExpired(date){
+                	const today = new Date();
+                	const endDate = new Date(date);
+                	return endDate < today;
+                }
+            },
+        });
+        function copyEvent(id) {
+            let str = document.getElementById(id);
+            navigator.clipboard.writeText($("#" + id).text());
+        }
+    </script>
