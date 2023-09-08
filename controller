@@ -1,4 +1,4 @@
-  @GET
+ @GET
     @Path("/queryProfile")
     @Produces(APPLICATION_JSON + "; charset=UTF-8")
     public Map<String, Object> queryProfile() {
@@ -27,3 +27,33 @@
         
         return returnMap;
     }
+    @GET 
+    @Path("/apply/{action}")  
+    @Produces(APPLICATION_JSON + "; charset=UTF-8")
+    public Map<String, Object> apply(@PathParam("action") String action) {
+    	log.info("******apply  start******");
+		log.info("action=----"+action+"----"); 
+        UserProfileBean profileBean = SSOSupportService.getProfile(req);   
+        Map<String, Object> returnMap = new HashMap<>();
+        if (action.equals("Normal")) { //掛失   SIM_LOST      
+	        if (logService.getServiceOrder(profileBean.getMsisdn(), SIM_LOST, LOG_STATUS_INI, "", "").size() == 0) {
+	        	log.info("******excute simLostServiceApply******"); 
+	        	service.simLostServiceApply(profileBean,SIM_LOST);
+	        }
+        } else if (action.equals("Self")) { //自願停話 SIM_DISABLE      
+	        if (logService.getServiceOrder(profileBean.getMsisdn(), SIM_DISABLE, LOG_STATUS_INI, "", "").size() == 0) {
+	        	log.info("******excute simDisableServiceApply******"); 
+	        	service.simDisableServiceApply(profileBean,SIM_DISABLE);
+	        }
+        } else{
+        	returnMap.put("result", "exception");
+            returnMap.put("message", messageSource.getMessage("simLostChange_lost_insert_error", null, Locale.getDefault()));
+            returnMap.put("service", messageSource.getMessage("simLostChange_lost_service", null, Locale.getDefault()));
+            return returnMap;
+        }
+        returnMap.put("result", "success");
+        returnMap.put("message", messageSource.getMessage(APPLY_SUCCESS_MESSAGE, null, Locale.getDefault()));
+        returnMap.put("service", messageSource.getMessage("simLostChange_lost_service", null, Locale.getDefault()));
+        return returnMap;
+    }
+     
