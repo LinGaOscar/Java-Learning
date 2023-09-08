@@ -1,4 +1,4 @@
- @GET
+  @GET
     @Path("/queryProfile")
     @Produces(APPLICATION_JSON + "; charset=UTF-8")
     public Map<String, Object> queryProfile() {
@@ -47,13 +47,12 @@
 	        }
         } else{
         	returnMap.put("result", "exception");
-            returnMap.put("message", messageSource.getMessage("simLostChange_lost_insert_error", null, Locale.getDefault()));
-            returnMap.put("service", messageSource.getMessage("simLostChange_lost_service", null, Locale.getDefault()));
+            returnMap.put("message", "輸入資料錯誤！");
+            returnMap.put("service", "若你有任何問題，請以手機直撥188或撥0809-000-852至客服中心洽詢。");
             return returnMap;
         }
         returnMap.put("result", "success");
-        returnMap.put("message", messageSource.getMessage(APPLY_SUCCESS_MESSAGE, null, Locale.getDefault()));
-        returnMap.put("service", messageSource.getMessage("simLostChange_lost_service", null, Locale.getDefault()));
+        returnMap.put("message", "﹝掛失/停話﹞申請服務已送出，系統將於1小時內為你處理完成。");
+        returnMap.put("service", "若你有任何問題，請以手機直撥188或撥0809-000-852至客服中心洽詢。");
         return returnMap;
     }
-     
