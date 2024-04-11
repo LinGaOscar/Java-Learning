@@ -1,0 +1,4 @@
+npm pack @angular/core @angular/common @angular/compiler @angular/forms @angular/platform-browser @angular/platform-browser-dynamic @angular/router
+
+
+npm install @angular/core @angular/common @angular/compiler @angular/forms @angular/platform-browser @angular/platform-browser-dynamic @angular/router
